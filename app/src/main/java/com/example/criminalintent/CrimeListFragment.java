@@ -1,6 +1,7 @@
 package com.example.criminalintent;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -8,6 +9,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.nio.channels.NonWritableChannelException;
 import java.text.DateFormat;
 
 import java.util.List;
@@ -158,7 +161,8 @@ public class CrimeListFragment extends Fragment {
 		}
 		else
 			mAdapter.setCrimes(crimes);
-			mAdapter.notifyDataSetChanged();
+
+		mAdapter.notifyDataSetChanged();
 		//TODO mAdapter.notifyItemChanged(int)
 
 		if(!mAdapter.mCrimes.isEmpty())
@@ -169,18 +173,59 @@ public class CrimeListFragment extends Fragment {
 		updateSubtitle();
 
 	}
+	class CrimeRequirePoliceHolder extends CrimeHolder
+
+	{
+		private Button mCallPoliceButton;
+		private static final String POLICE_NUMBER="102";
+
+		public CrimeRequirePoliceHolder(LayoutInflater inflater, ViewGroup parent) {
+			super (inflater.inflate(R.layout.list_item_crime_require_police,parent,false));
+
+			mTitleTextView=(TextView) itemView.findViewById(R.id.item_crime_title);
+			mDataTextView=(TextView) itemView.findViewById(R.id.item_crime_date);
+			mSolvedImageView=(ImageView) itemView.findViewById(R.id.item_crime_solved);
+			itemView.setOnClickListener(this); //////??
+			mCallPoliceButton=(Button)itemView.findViewById(R.id.call_police);
+			mCallPoliceButton.setOnClickListener(new View.OnClickListener(){
+				@Override
+				public void onClick(View view) {
+					Uri number=Uri.parse("tel:"+POLICE_NUMBER);
+					Intent i=new Intent(Intent.ACTION_DIAL,number);
+					startActivity(i);
+				}
+			});
+
+		}
+
+	}
+	class CrimeNotRequirePoliceHolder extends CrimeHolder
+	{
+		public CrimeNotRequirePoliceHolder(LayoutInflater inflater, ViewGroup parent)
+		{
+			super (inflater.inflate(R.layout.list_item_crime,parent,false));
+
+			mTitleTextView=(TextView) itemView.findViewById(R.id.item_crime_title);
+			mDataTextView=(TextView) itemView.findViewById(R.id.item_crime_date);
+			mSolvedImageView=(ImageView) itemView.findViewById(R.id.item_crime_solved);
+			itemView.setOnClickListener(this);
+		}
+	}
 
 	class CrimeHolder extends RecyclerView.ViewHolder
 		implements View.OnClickListener
 	{
-		private TextView mTitleTextView;
-		private TextView mDataTextView;
-		private ImageView mSolvedImageView;
-		private Crime mCrime;
+		protected TextView mTitleTextView;
+		protected TextView mDataTextView;
+		protected ImageView mSolvedImageView;
+		protected Crime mCrime;
+
+		public CrimeHolder(@NonNull View itemView) {
+			super(itemView);
+		}
 
 
-
-		public CrimeHolder(LayoutInflater inflater, ViewGroup parent) {
+		/*public CrimeHolder(LayoutInflater inflater, ViewGroup parent) {
 			super (inflater.inflate(R.layout.list_item_crime,parent,false));
 
 			mTitleTextView=(TextView) itemView.findViewById(R.id.item_crime_title);
@@ -188,7 +233,7 @@ public class CrimeListFragment extends Fragment {
 			mSolvedImageView=(ImageView) itemView.findViewById(R.id.item_crime_solved);
 			itemView.setOnClickListener(this); //////??
 
-		}
+		}*/
 		public void bind (Crime crime)
 		{
 			mCrime=crime;
@@ -213,6 +258,8 @@ public class CrimeListFragment extends Fragment {
 	{
 
 		private List<Crime> mCrimes;
+		private final int NOT_REQUIRE_POLICE=0;
+		private final int REQUIRE_POLICE=1;
 
 		public CrimeAdapter(List<Crime> crimes) {
 			mCrimes = crimes;
@@ -223,11 +270,11 @@ public class CrimeListFragment extends Fragment {
 		public CrimeHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 			LayoutInflater inflater = LayoutInflater.from(getActivity());
 
-			//todo добавить логику, которая будет возвращать разные объекты ViewHolder
-			// в зависимости от нового значения viewType, возвращаемого методом getItemViewType(int)
-
-			return new CrimeHolder(inflater,parent); //в завис от viewtype new RequirePoliceCrimeHolder
+			if(viewType==NOT_REQUIRE_POLICE)
+				return new CrimeNotRequirePoliceHolder(inflater,parent); //в завис от viewtype new RequirePoliceCrimeHolder
+			else return new CrimeRequirePoliceHolder(inflater,parent);
 		}
+
 
 		@Override
 		public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
@@ -246,8 +293,10 @@ public class CrimeListFragment extends Fragment {
 
 		@Override
 		public int getItemViewType(int position) {
-			//TODO какое представление следует загружать в CrimeAdapter
-			return super.getItemViewType(position);
+			if(mCrimes.get(position).isRequiresPolice())
+				return REQUIRE_POLICE;
+			else return NOT_REQUIRE_POLICE;
+
 		}
 
 		public void  setCrimes(List<Crime> crimes) {

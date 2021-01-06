@@ -9,6 +9,8 @@
     <string name="crime_suspect_text">Choose suspect</string>
     <string name="crime_report_text">Send crime report</string>
     <string name="crime_call_text">Call the suspect</string>
+    <string name="police_call">Police</string>
+    <string name="requre_police_text">Require police</string>
 
     <string name="new_crime">New Crime</string>
     <string name="show_subtitle">Show Subtitle</string>

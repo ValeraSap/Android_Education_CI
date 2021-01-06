@@ -70,6 +70,7 @@ public class CrimeFragment extends Fragment {
 	private Button mCallSuspectButton;
 	private ImageButton mPhotoButton;
 	private ImageView mPhotoView;
+	private CheckBox mPoliceRequire;
 
 
 	@Override
@@ -132,10 +133,18 @@ public class CrimeFragment extends Fragment {
 
 		mSolved=(CheckBox) view.findViewById(R.id.crime_solved);
 		mSolved.setChecked(mCrime.isSolved());
-				mSolved.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+		mSolved.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
 				mCrime.setSolved(b);
+			}
+		});
+		mPoliceRequire=(CheckBox) view.findViewById(R.id.crime_require_police_checkbox);
+		mPoliceRequire.setChecked(mCrime.isRequiresPolice());
+		mPoliceRequire.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+				mCrime.setRequiresPolice(b);
 			}
 		});
 
@@ -277,10 +286,6 @@ public class CrimeFragment extends Fragment {
 		return view;
 	}
 
-	private void getPermissionCamera()
-	{
-
-	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	private void getPermissionToReadUserContacts() {
