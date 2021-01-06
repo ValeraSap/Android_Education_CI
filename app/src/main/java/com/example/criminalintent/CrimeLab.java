@@ -10,6 +10,7 @@ import com.example.criminalintent.database.CrimeCursorWrapper;
 import com.example.criminalintent.database.CrimeDbSchema;
 import com.example.criminalintent.database.CrimeDbSchema.CrimeTable;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -17,9 +18,9 @@ import java.util.UUID;
 public class CrimeLab {
 
 	private static CrimeLab sCrimeLab;
-	//private List<Crime> mCrimes;
 	private Context mContext;
 	private SQLiteDatabase mDatabase;
+
 
 	public static CrimeLab getInstance(Context context){
 		if(sCrimeLab == null)
@@ -31,8 +32,6 @@ public class CrimeLab {
 		mContext=context.getApplicationContext(); // Он будет использоваться CrimeLab в главе 16
 		mDatabase=new CrimeBaseHelper(mContext)
 				.getWritableDatabase();
-		//mCrimes = new ArrayList<>();
-
 
 	}
 
@@ -46,6 +45,12 @@ public class CrimeLab {
 		mDatabase.delete(CrimeTable.NAME,
 				CrimeTable.Cols.UUID+" = ?",
 				new String[]{uuidString});
+	}
+
+	public File getPhotoFile(Crime c)
+	{
+		File filesDir=mContext.getFilesDir();
+		return new File(filesDir, c.getPhotoFilename());
 	}
 
 	public Crime getCrime(UUID uuid) {

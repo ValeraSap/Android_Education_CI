@@ -13,6 +13,11 @@ public class Crime implements Comparable<Crime> {
     private boolean mRequiresPolice;
     private String mSuspect;
 
+    public String getPhotoFilename()
+    {
+        return "IMG_"+getID().toString()+".jpg";
+    }
+
     public String getSuspect() {
         return mSuspect;
     }

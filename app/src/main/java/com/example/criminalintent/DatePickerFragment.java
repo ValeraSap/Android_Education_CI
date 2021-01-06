@@ -32,8 +32,8 @@ public class DatePickerFragment extends DialogFragment {
 			"com.example.criminalintent.date";
 
 	private DatePicker mDatePicker;
-	private Button mDateButton;
-	private  Calendar mCalendar;  ////
+	//private Button mDateButton;
+	//private  Calendar mCalendar;  ////
 
 	public static DatePickerFragment newInstance(Date date)
 	{
