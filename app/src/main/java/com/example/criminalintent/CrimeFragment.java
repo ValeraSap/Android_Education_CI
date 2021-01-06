@@ -20,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -209,8 +210,6 @@ public class CrimeFragment extends Fragment {
 
 				getPermissionToReadUserContacts();
 
-
-
 				//1 получить номер телефона
 				String[] projection				= new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER}; //столбец
 				//String selection				= ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " = ?"; ///правило //ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " = ?",    //ничего не находит
@@ -395,9 +394,17 @@ public class CrimeFragment extends Fragment {
 		{
 			mPhotoView.setImageDrawable(null);
 		} else {
-			Bitmap bitmap = PictureUtils.getScaledBitmap(
-					mPhotoFile.getPath(),getActivity());
-			mPhotoView.setImageBitmap(bitmap);
+		
+			mPhotoView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+				@Override
+				public void onGlobalLayout() {
+					Bitmap bitmap = PictureUtils.getScaledBitmap(mPhotoFile.getPath(),
+							mPhotoView.getWidth(),mPhotoView.getHeight()
+								);
+					mPhotoView.setImageBitmap(bitmap);
+				}
+			});
+
 
 		}
 	}

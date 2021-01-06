@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -31,8 +32,16 @@ public class PhotoFragment extends DialogFragment {
 		mPhotoFile=(File) getArguments().getSerializable(ARG_FILE);
 		mPhotoImageView=(ImageView)view.findViewById(R.id.dialog_photo_imgview);
 
-		Bitmap bitmap=PictureUtils.getScaledBitmap(mPhotoFile.getPath(),getActivity());
-		mPhotoImageView.setImageBitmap(bitmap);
+		//Bitmap bitmap=PictureUtils.getScaledBitmap(mPhotoFile.getPath(),getActivity());
+		//mPhotoImageView.setImageBitmap(bitmap);
+
+		mPhotoImageView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener(){
+			@Override
+			public void onGlobalLayout() {
+				Bitmap bitmap=PictureUtils.getScaledBitmap(mPhotoFile.getPath(),mPhotoImageView.getWidth(),mPhotoImageView.getHeight());
+				mPhotoImageView.setImageBitmap(bitmap);
+			}
+		});
 
 		return new AlertDialog.Builder(getActivity())
 				.setView(view)
