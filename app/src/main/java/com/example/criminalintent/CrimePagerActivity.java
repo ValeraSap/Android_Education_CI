@@ -75,7 +75,7 @@ public class CrimePagerActivity extends AppCompatActivity {
 				if(mViewPager.getCurrentItem()==mCrimes.size()-1)
 					mLastButton.setVisibility(View.INVISIBLE);
 				else mLastButton.setVisibility(View.VISIBLE);
-				
+
 			}
 		});
 
