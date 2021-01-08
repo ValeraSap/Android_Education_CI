@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
@@ -27,7 +28,7 @@ public class CrimePagerActivity extends AppCompatActivity {
 	private static final String EXTRA_CRIME_ID =
 			"com.example.criminalintent.crime_id";
 
-	private ViewPager mViewPager;
+	private ViewPager2 mViewPager;
 	private List<Crime> mCrimes;
 
 	private Button mFirstButton;
@@ -40,24 +41,41 @@ public class CrimePagerActivity extends AppCompatActivity {
 
 		UUID crimeId = (UUID) getIntent().getSerializableExtra(EXTRA_CRIME_ID);
 
-		mViewPager=(ViewPager) findViewById(R.id.crime_view_pager);
+		mViewPager=(ViewPager2) findViewById(R.id.crime_view_pager);
 		mCrimes=CrimeLab.getInstance(this).getCrimes();
 
 		mFirstButton=(Button) findViewById(R.id.first_crime);
 		mLastButton=(Button) findViewById(R.id.last_crime);
 
-		FragmentManager fm=getSupportFragmentManager();
-		mViewPager.setAdapter(new FragmentStatePagerAdapter(fm) {
+		mViewPager.setAdapter(new FragmentStateAdapter(this) {
+			@Override
+			public int getItemCount() {
+				return mCrimes.size();
+			}
+
 			@NonNull
 			@Override
-			public Fragment getItem(int position) {
+			public Fragment createFragment(int position) {
 				Crime crime=mCrimes.get(position);
+				//todo тут отрисовка клавиш
+
+
 				return CrimeFragment.newInstance(crime.getID());
 			}
 
+		});
+		mViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback(){
 			@Override
-			public int getCount() {
-				return mCrimes.size();
+			public void onPageSelected(int position) {
+				super.onPageSelected(position);
+				if(mViewPager.getCurrentItem()==0)
+					mFirstButton.setVisibility(View.INVISIBLE);
+				else mFirstButton.setVisibility(View.VISIBLE);
+
+				if(mViewPager.getCurrentItem()==mCrimes.size()-1)
+					mLastButton.setVisibility(View.INVISIBLE);
+				else mLastButton.setVisibility(View.VISIBLE);
+				
 			}
 		});
 
@@ -82,9 +100,6 @@ public class CrimePagerActivity extends AppCompatActivity {
 			}
 		});
 
-		//TODO делать эту проверку при листании
-		//вероятно придется переопределять свой адаптер
-
 		if(mViewPager.getCurrentItem()==0)
 			mFirstButton.setVisibility(View.INVISIBLE);
 		else mFirstButton.setVisibility(View.VISIBLE);
@@ -92,6 +107,7 @@ public class CrimePagerActivity extends AppCompatActivity {
 		if(mViewPager.getCurrentItem()==mCrimes.size()-1)
 			mLastButton.setVisibility(View.INVISIBLE);
 		else mLastButton.setVisibility(View.VISIBLE);
+
 
 	}
 
@@ -105,17 +121,4 @@ public class CrimePagerActivity extends AppCompatActivity {
 
 	}
 
-	/*class CrimePagerAdapter extends PagerAdapter
-	{
-
-		@Override
-		public int getCount() {
-			return 0;
-		}
-
-		@Override
-		public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
-			return false;
-		}
-	}*/
 }

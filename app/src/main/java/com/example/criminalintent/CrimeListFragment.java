@@ -50,10 +50,10 @@ public class CrimeListFragment extends Fragment {
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
-		if(savedInstanceState!=null)
+		/*if(savedInstanceState!=null)
 		{
 			mSubtitleVisible=savedInstanceState.getBoolean(SAVED_SUBTITLE_VISIBLE);
-		}
+		}*/
 	}
 
 	@Nullable
@@ -72,8 +72,6 @@ public class CrimeListFragment extends Fragment {
 				addCrime();
 			}
 		});
-
-
 
 		updateUI();
 
@@ -116,9 +114,9 @@ public class CrimeListFragment extends Fragment {
 				addCrime();
 				return  true; //верните true; тем самым вы сообщаете, что дальнейшая обработка не нужна
 			case R.id.show_subtitle:
-				updateSubtitle();
 				mSubtitleVisible = !mSubtitleVisible;
-				getActivity().invalidateOptionsMenu();
+				updateSubtitle();
+				getActivity().invalidateOptionsMenu(); //???
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -163,7 +161,7 @@ public class CrimeListFragment extends Fragment {
 			mAdapter.setCrimes(crimes);
 
 		mAdapter.notifyDataSetChanged();
-		//TODO mAdapter.notifyItemChanged(int)
+		//TODO mAdapter.notifyItemChanged(int) //DiffUtil, который позволяет почти полностью автоматизировать работу по уведомлению об изменениях
 
 		if(!mAdapter.mCrimes.isEmpty())
 			mListEmptyTextView.setVisibility(View.GONE);
