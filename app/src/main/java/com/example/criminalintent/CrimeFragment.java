@@ -3,6 +3,7 @@ package com.example.criminalintent;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -208,40 +209,18 @@ public class CrimeFragment extends Fragment {
 				if(mCrime.getSuspect()==null)
 					return;
 
-				getPermissionToReadUserContacts();
-
-				//1 получить номер телефона
-				String[] projection				= new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER}; //столбец
-				//String selection				= ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " = ?"; ///правило //ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " = ?",    //ничего не находит
-				String selection				= ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME+" like'%" + "GrandJigas" +"%'";
-				String[] selectionParameters 	= new String[]{mCrime.getSuspect()};
-
-				// todo fix query
-				Cursor c= getActivity().getContentResolver().query(
-						ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-						projection,
-						selection,
-						null,
-						null
-						);
-				try{
-					if(c.getCount()==0)
-						return;
-					c.moveToFirst();
-
-					//Toast.makeText(getActivity(),c.getString(0),Toast.LENGTH_SHORT).show();
-
-					//2 позвонить на номер
-					Uri number=Uri.parse("tel:"+c.getString(0));
+				getPermissionToReadUserContacts(); //todo fix permission
+				
+				String num=getPhoneNumber(mCrime.getSuspect(),getActivity());
+				//2 позвонить на номер
+					Uri number=Uri.parse("tel:"+num);
 					Intent i = new Intent(Intent.ACTION_DIAL,number);
 					startActivity(i);
 
-				} finally {
-					c.close();
-				}
 
 			}
 		});
+
 
 		mPhotoButton=(ImageButton)view.findViewById(R.id.crime_camera);
 
@@ -285,6 +264,24 @@ public class CrimeFragment extends Fragment {
 		return view;
 	}
 
+	public String getPhoneNumber(String name, Context context){
+		String ret = null;
+		String selection = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " like'%" + name + "%'";
+		String[] projection = new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER};
+		Cursor c = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+				projection, selection, null, null);
+		try {
+			if (c.moveToFirst()) {
+				ret = c.getString(0);
+			}
+		} finally {
+			c.close();
+		}
+
+		if (ret == null)
+			ret = "Unsaved";
+		return ret;
+	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	private void getPermissionToReadUserContacts() {
