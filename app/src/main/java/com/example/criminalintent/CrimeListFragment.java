@@ -1,5 +1,6 @@
 package com.example.criminalintent;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -45,7 +46,17 @@ public class CrimeListFragment extends Fragment {
 	private CrimeAdapter mAdapter;
 	private FloatingActionButton mAddCrimeButton;
 	private TextView mListEmptyTextView;
+	private Callbacks mCallbacks;
 
+	public interface Callbacks {
+		void onCrimeSelected(Crime crime);
+	}
+
+	@Override
+	public void onAttach(@NonNull Context context) {
+		super.onAttach(context);
+		mCallbacks=(Callbacks) context;
+	}
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -124,13 +135,19 @@ public class CrimeListFragment extends Fragment {
 		}
 	}
 
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		mCallbacks=null;
+	}
+
 	private void addCrime()
 	{
 		//mListEmptyTextView.setVisibility(View.GONE);
 		Crime crime = new Crime();
 		CrimeLab.getInstance(getActivity()).addCrime(crime);
-		Intent intent = CrimePagerActivity.newIntent(getActivity(), crime.getID());
-		startActivity(intent);
+		updateUI(); //писок сразу перезагружается (для планшетов)
+		mCallbacks.onCrimeSelected(crime);
 	}
 
 	private void updateSubtitle()
@@ -148,7 +165,7 @@ public class CrimeListFragment extends Fragment {
 		activity.getSupportActionBar().setSubtitle(subtitle);
 
 	}
-	private void updateUI()
+	public void updateUI()
 	{
 		CrimeLab crimeLab=CrimeLab.getInstance(getActivity());
 		List<Crime> crimes=crimeLab.getCrimes();
@@ -256,9 +273,7 @@ public class CrimeListFragment extends Fragment {
 		@Override
 		public void onClick(View v) {
 
-			//TODO пометить, что этазапись изменилась
-			Intent intent = CrimePagerActivity.newIntent(getActivity(),mCrime.getID());
-			startActivity(intent);
+			mCallbacks.onCrimeSelected(mCrime);
 		}
 	}
 	class CrimeAdapter extends  RecyclerView.Adapter
