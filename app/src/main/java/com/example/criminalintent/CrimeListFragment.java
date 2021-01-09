@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -158,10 +159,18 @@ public class CrimeListFragment extends Fragment {
 			mCrimeRecyclerView.setAdapter(mAdapter);
 		}
 		else
+		{
+			//todo does it works
+			CrimeDiffUtilCallback crimeDiffUtilCallback=
+					new CrimeDiffUtilCallback(mAdapter.getCrimes(),crimes);
+			DiffUtil.DiffResult crimeDiffResult=DiffUtil.calculateDiff(crimeDiffUtilCallback);
 			mAdapter.setCrimes(crimes);
+			crimeDiffResult.dispatchUpdatesTo(mAdapter);
+		}
 
-		mAdapter.notifyDataSetChanged();
-		//TODO mAdapter.notifyItemChanged(int) //DiffUtil, который позволяет почти полностью автоматизировать работу по уведомлению об изменениях
+
+		//mAdapter.notifyDataSetChanged();
+
 
 		if(!mAdapter.mCrimes.isEmpty())
 			mListEmptyTextView.setVisibility(View.GONE);
@@ -255,6 +264,8 @@ public class CrimeListFragment extends Fragment {
 	class CrimeAdapter extends  RecyclerView.Adapter
 	{
 
+
+
 		private List<Crime> mCrimes;
 		private final int NOT_REQUIRE_POLICE=0;
 		private final int REQUIRE_POLICE=1;
@@ -296,11 +307,53 @@ public class CrimeListFragment extends Fragment {
 			else return NOT_REQUIRE_POLICE;
 
 		}
-
+		public List<Crime> getCrimes() {
+			return mCrimes;
+		}
 		public void  setCrimes(List<Crime> crimes) {
 			mCrimes=crimes;
 		}
 
 
+	}
+
+	public class CrimeDiffUtilCallback extends DiffUtil.Callback {
+
+		private  final List<Crime> mOldList;
+		private  final List<Crime> mNewList;
+
+		public CrimeDiffUtilCallback(List<Crime> oldCrimes,List<Crime> newCrimes)
+		{
+			mOldList=oldCrimes;
+			mNewList=newCrimes;
+		}
+
+		@Override
+		public int getOldListSize() {
+			return mOldList.size();
+		}
+
+		@Override
+		public int getNewListSize() {
+			return mNewList.size();
+		}
+
+		@Override
+		public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+			Crime oldCrime=mOldList.get(oldItemPosition);
+			Crime newCrime=mNewList.get(newItemPosition);
+			return oldCrime.getID()==newCrime.getID();
+		}
+
+		@Override
+		public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+			Crime oldCrime=mOldList.get(oldItemPosition);
+			Crime newCrime=mNewList.get(newItemPosition);
+			return (oldCrime.getTitle()==newCrime.getTitle() &&
+					oldCrime.getDate()==newCrime.getDate() &&
+					oldCrime.isSolved()==newCrime.isSolved() &&
+					oldCrime.isRequiresPolice()==newCrime.isRequiresPolice());
+
+		}
 	}
 }
