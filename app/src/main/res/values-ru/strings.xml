@@ -5,6 +5,12 @@
     <string name="crime_title_label">Название</string>
     <string name="crime_details_label">Детали</string>
     <string name="crime_solved_label">Раскрыто</string>
+    <string name="crime_photo_button_description">Сделать фотографию места преступления</string>
+    <string name="crime_photo_no_image_description">
+Фото преступления (не задано)
+</string>
+    <string name="crime_photo_image_description">Фото преступления (задано)</string>
+
     <string name="date_picker_title">Дата преступления:</string>
     <string name="deletion">Удалить</string>
     <string name="crime_suspect_text">Выбрать подозреваемого</string>
@@ -34,4 +40,8 @@
     <string name="crime_report_suspect">подозревается %s.</string>
     <string name="crime_report_subject">Отчет о преступлении</string>
     <string name="send_report">Отправить отчет с помощью</string>
+
+
+
+
 </resources>
