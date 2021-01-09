@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Преступный умысел</string>
+    <string name="crime_title_hint">Название преступления</string>
+    <string name="crime_title_label">Название</string>
+    <string name="crime_details_label">Детали</string>
+    <string name="crime_solved_label">Раскрыто</string>
+    <string name="date_picker_title">Дата преступления:</string>
+    <string name="deletion">Удалить</string>
+    <string name="crime_suspect_text">Выбрать подозреваемого</string>
+    <string name="crime_report_text">Отправить отчет</string>
+    <string name="crime_call_text">Звонок подозреваемому</string>
+    <string name="police_call">Полиция</string>
+    <string name="requre_police_text">Требуется полиция</string>
+
+    <string name="new_crime">Новое преступление</string>
+    <string name="show_subtitle">Показать подзаголовок</string>
+    <string name="hide_subtitle">Спрятать подзаголовок</string>
+    <string name="empty_list_notify">Список пуст</string>
+    <plurals name="subtitle_plural">
+        <item quantity="one">%1$d преступление</item>
+        <item quantity="few">%1$d преступления</item>
+        <item quantity="many">%1$d преступлений</item>
+    </plurals>
+
+
+    <string name="crime_report">
+        %1$s!
+        Преступление было обнаружено %2$s. %3$s, и %4$s
+    </string>
+    <string name="crime_report_solved">Дело раскрыто</string>
+    <string name="crime_report_unsolved">Дело не раскрыто</string>
+    <string name="crime_report_no_suspect">подозреваемых нет</string>
+    <string name="crime_report_suspect">подозревается %s.</string>
+    <string name="crime_report_subject">Отчет о преступлении</string>
+    <string name="send_report">Отправить отчет с помощью</string>
+</resources>
