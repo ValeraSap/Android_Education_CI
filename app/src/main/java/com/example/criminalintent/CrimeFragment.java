@@ -42,6 +42,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import static android.widget.CompoundButton.*;
@@ -53,6 +54,8 @@ public class CrimeFragment extends Fragment {
 	private static final String DIALOG_DATE = "DialogDate";
 	private static final String DIALOG_TIME = "DialogTime";
 	private static final String DIALOG_PHOTO= "DialogPhoto";
+
+	private final String DATE_PATTERN= "E dd MMM yyyy 'at' HH:mm";
 
 	private static final int REQUEST_DATE = 0;
 	public static final int REQUEST_TIME =1;
@@ -387,7 +390,10 @@ public class CrimeFragment extends Fragment {
 	}
 
 	private void updateDate() {
-		mDateButton.setText(mCrime.getDate().toString());
+		Locale currentLocale = getResources().getConfiguration().locale;
+
+		SimpleDateFormat formatter= new SimpleDateFormat(DATE_PATTERN, currentLocale );
+		mDateButton.setText(formatter.format(mCrime.getDate()));
 	}
 
 	private String getCrimeReport() {

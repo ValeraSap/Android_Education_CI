@@ -30,7 +30,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.nio.channels.NonWritableChannelException;
 import java.text.DateFormat;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 public class CrimeListFragment extends Fragment {
@@ -273,8 +276,10 @@ public class CrimeListFragment extends Fragment {
 			mTitleTextView.setText(mCrime.getTitle());
 			//mDataTextView.setText(mCrime.getDate().toString());
 			//new SimpleDateFormat("dd.MM.yyyy 'at' HH:mm" )
-			mDataTextView.setText(DateFormat.getDateInstance(DateFormat.MEDIUM).format(mCrime.getDate())
-					+" at " +DateFormat.getTimeInstance(DateFormat.SHORT).format(mCrime.getDate()));
+
+			Locale currentLocale = getResources().getConfiguration().locale;
+			SimpleDateFormat formatter= new SimpleDateFormat("dd MMM yyyy 'at' HH:mm", currentLocale );
+			mDataTextView.setText(formatter.format(mCrime.getDate()));
 
 			mSolvedImageView.setVisibility(mCrime.isSolved()?View.VISIBLE:View.GONE);
 		}
