@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -20,6 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,7 +35,6 @@ import java.util.UUID;
 
 public class CrimeListFragment extends Fragment {
 
-	private static final String SAVED_SUBTITLE_VISIBLE = "subtitle";
 	private  boolean mSubtitleVisible;
 
 	/****
@@ -42,11 +43,12 @@ public class CrimeListFragment extends Fragment {
 	 Он обращается за помощью к адаптеру, вызывая его метод.
 	 Сам виджет RecyclerView ничего не знает об объекте Crime, но адаптер располагает полной информацией о Crime.
 	 */
-	RecyclerView mCrimeRecyclerView;
+	private RecyclerView mCrimeRecyclerView;
 	private CrimeAdapter mAdapter;
 	private FloatingActionButton mAddCrimeButton;
 	private TextView mListEmptyTextView;
 	private Callbacks mCallbacks;
+	//private final CrimeSwipeHelperAdapter mSwipeHelperAdapter;
 
 	public interface Callbacks {
 		void onCrimeSelected(Crime crime);
@@ -62,10 +64,7 @@ public class CrimeListFragment extends Fragment {
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
-		/*if(savedInstanceState!=null)
-		{
-			mSubtitleVisible=savedInstanceState.getBoolean(SAVED_SUBTITLE_VISIBLE);
-		}*/
+
 	}
 
 	@Nullable
@@ -75,6 +74,7 @@ public class CrimeListFragment extends Fragment {
 		View view = inflater.inflate(R.layout.fragment_crime_list, container, false);
 		mCrimeRecyclerView = (RecyclerView) view.findViewById(R.id.crime_recycler_view);
 		mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity())); //LinearLayoutManager размещает элементы в вертикальном списке
+
 		mListEmptyTextView=(TextView)view.findViewById(R.id.empty_list_textview);
 
 		mAddCrimeButton=(FloatingActionButton)view.findViewById(R.id.add_crime_button);
@@ -84,6 +84,26 @@ public class CrimeListFragment extends Fragment {
 				addCrime();
 			}
 		});
+
+		ItemTouchHelper.SimpleCallback simpleCallback=new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.RIGHT){
+
+			@Override
+			public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+				return false;
+			}
+
+			@Override
+			public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+				//todo не працюе
+				CrimeLab crimeLab=CrimeLab.getInstance(getActivity());
+				int pos=viewHolder.getAbsoluteAdapterPosition();
+				crimeLab.deleteCrime(mAdapter.mCrimes.get(pos));
+				updateUI();
+			}
+		};
+
+		ItemTouchHelper itemTouchHelper=new ItemTouchHelper(simpleCallback);
+		itemTouchHelper.attachToRecyclerView(mCrimeRecyclerView);
 
 		updateUI();
 
@@ -114,7 +134,6 @@ public class CrimeListFragment extends Fragment {
 	@Override
 	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putBoolean(SAVED_SUBTITLE_VISIBLE, mSubtitleVisible);
 	}
 
 
@@ -140,6 +159,7 @@ public class CrimeListFragment extends Fragment {
 		super.onDetach();
 		mCallbacks=null;
 	}
+
 
 	private void addCrime()
 	{
@@ -174,20 +194,18 @@ public class CrimeListFragment extends Fragment {
 		{
 			mAdapter=new CrimeAdapter(crimes);
 			mCrimeRecyclerView.setAdapter(mAdapter);
+
+
 		}
 		else
 		{
-			//todo does it works
+
 			CrimeDiffUtilCallback crimeDiffUtilCallback=
 					new CrimeDiffUtilCallback(mAdapter.getCrimes(),crimes);
 			DiffUtil.DiffResult crimeDiffResult=DiffUtil.calculateDiff(crimeDiffUtilCallback);
 			mAdapter.setCrimes(crimes);
 			crimeDiffResult.dispatchUpdatesTo(mAdapter);
 		}
-
-
-		//mAdapter.notifyDataSetChanged();
-
 
 		if(!mAdapter.mCrimes.isEmpty())
 			mListEmptyTextView.setVisibility(View.GONE);
@@ -197,6 +215,7 @@ public class CrimeListFragment extends Fragment {
 		updateSubtitle();
 
 	}
+
 	class CrimeRequirePoliceHolder extends CrimeHolder
 
 	{
@@ -248,16 +267,6 @@ public class CrimeListFragment extends Fragment {
 			super(itemView);
 		}
 
-
-		/*public CrimeHolder(LayoutInflater inflater, ViewGroup parent) {
-			super (inflater.inflate(R.layout.list_item_crime,parent,false));
-
-			mTitleTextView=(TextView) itemView.findViewById(R.id.item_crime_title);
-			mDataTextView=(TextView) itemView.findViewById(R.id.item_crime_date);
-			mSolvedImageView=(ImageView) itemView.findViewById(R.id.item_crime_solved);
-			itemView.setOnClickListener(this); //////??
-
-		}*/
 		public void bind (Crime crime)
 		{
 			mCrime=crime;
@@ -276,10 +285,16 @@ public class CrimeListFragment extends Fragment {
 			mCallbacks.onCrimeSelected(mCrime);
 		}
 	}
+
+	public interface CrimeSwipeHelperAdapter {
+		//boolean isItemViewSwipeEnabled();
+		void  onItemDismiss(int position);
+
+	}
+
 	class CrimeAdapter extends  RecyclerView.Adapter
+		//implements ItemTouchHelper.SimpleCallback
 	{
-
-
 
 		private List<Crime> mCrimes;
 		private final int NOT_REQUIRE_POLICE=0;
@@ -330,6 +345,28 @@ public class CrimeListFragment extends Fragment {
 		}
 
 
+		/*@Override
+		public void onItemDismiss(int position) {
+			CrimeLab crimeLab=CrimeLab.getInstance(getActivity());
+			crimeLab.deleteCrime(mCrimes.get(position));
+
+			//или можно просто удалить из списка? или из списка не нужно удалять?
+			//mCrimes.remove(position);
+
+			notifyItemChanged(position);
+		}*/
+
+		/*@Override
+		public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+			return false;
+		}
+
+		@Override
+		public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+			CrimeLab crimeLab=CrimeLab.getInstance(getActivity());
+			crimeLab.deleteCrime(mCrimes.get(viewHolder.getBindingAdapterPosition()));
+			//notifyItemChanged(viewHolder.getBindingAdapterPosition());
+		}*/
 	}
 
 	public class CrimeDiffUtilCallback extends DiffUtil.Callback {
@@ -371,4 +408,6 @@ public class CrimeListFragment extends Fragment {
 
 		}
 	}
+
+
 }
